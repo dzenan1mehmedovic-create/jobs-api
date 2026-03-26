@@ -6,6 +6,8 @@ import authRoutes from "./routes/authRoutes.js";
 import jobsRoutes from "./routes/jobsRoutes.js";
 import { authenticateUser } from "./middleware/authMiddleware.js";
 import { apiLimiter } from "./middleware/rateLimiter.js";
+import notFoundMiddleware from "./middleware/notFound.js";
+import errorHandlerMiddleware from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -22,5 +24,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/jobs", authenticateUser, jobsRoutes);
+
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 export default app;
