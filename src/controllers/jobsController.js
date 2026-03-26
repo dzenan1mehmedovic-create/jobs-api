@@ -2,10 +2,34 @@ import { pool } from "../db/connect.js";
 
 export const getAllJobs = async (req, res) => {
   try {
-    const [jobs] = await pool.query(
-      "SELECT * FROM jobs WHERE created_by = ? ORDER BY created_at DESC",
-      [req.user.userId],
-    );
+    const { status, search, sort } = req.query;
+
+    let query = "SELECT * FROM jobs WHERE created_by = ?";
+    const values = [req.user.userId];
+
+    if (status && status !== "all") {
+      query += " AND status = ?";
+      values.push(status);
+    }
+
+    if (search) {
+      query += " AND position LIKE ?";
+      values.push(`%${search}%`);
+    }
+
+    if (sort === "latest") {
+      query += " ORDER BY created_at DESC";
+    } else if (sort === "oldest") {
+      query += " ORDER BY created_at ASC";
+    } else if (sort === "a-z") {
+      query += " ORDER BY position ASC";
+    } else if (sort === "z-a") {
+      query += " ORDER BY position DESC";
+    } else {
+      query += " ORDER BY created_at DESC";
+    }
+
+    const [jobs] = await pool.query(query, values);
 
     return res.status(200).json({
       count: jobs.length,
