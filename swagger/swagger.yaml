@@ -1,0 +1,188 @@
+openapi: 3.0.0
+info:
+  title: Jobs API
+  version: 1.0.0
+  description: Jobs API built with Node.js, Express and MySQL
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: Auth
+  - name: Jobs
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterBody:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Dzenan
+        email:
+          type: string
+          example: dzenan@gmail.com
+        password:
+          type: string
+          example: 12345678
+
+    LoginBody:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: dzenan@gmail.com
+        password:
+          type: string
+          example: 12345678
+
+    JobBody:
+      type: object
+      required:
+        - company
+        - position
+      properties:
+        company:
+          type: string
+          example: Google
+        position:
+          type: string
+          example: Backend Developer
+        status:
+          type: string
+          example: interview
+
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Register user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        201:
+          description: User registered successfully
+
+  /api/v1/auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        200:
+          description: User logged in successfully
+
+  /api/v1/jobs:
+    get:
+      summary: Get all jobs
+      tags: [Jobs]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+          description: Filter jobs by status
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by position
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Sort jobs
+      responses:
+        200:
+          description: List of jobs
+
+    post:
+      summary: Create job
+      tags: [Jobs]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobBody"
+      responses:
+        201:
+          description: Job created successfully
+
+  /api/v1/jobs/{id}:
+    get:
+      summary: Get single job
+      tags: [Jobs]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Single job
+
+    patch:
+      summary: Update job
+      tags: [Jobs]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobBody"
+      responses:
+        200:
+          description: Job updated successfully
+
+    delete:
+      summary: Delete job
+      tags: [Jobs]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Job deleted successfully
