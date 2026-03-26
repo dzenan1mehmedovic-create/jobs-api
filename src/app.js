@@ -1,11 +1,16 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+
 import authRoutes from "./routes/authRoutes.js";
 import jobsRoutes from "./routes/jobsRoutes.js";
 import { authenticateUser } from "./middleware/authMiddleware.js";
+import { apiLimiter } from "./middleware/rateLimiter.js";
 
 const app = express();
 
+app.use(apiLimiter);
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
